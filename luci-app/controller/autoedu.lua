@@ -64,26 +64,83 @@ end
 function api_status()
 	local status = {}
 	
-	-- Check if service is running
-	status.running = (sys.call("pgrep -f auto_edu.py > /dev/null 2>&1") == 0)
+	-- Check if enabled in UCI
+	status.enabled = (uci:get("autoedu", "config", "enabled") == "1")
+	
+	-- Check if cron is active
+	local cron_check = sys.exec("crontab -l 2>/dev/null | grep auto_edu.py")
+	status.cron_active = (cron_check ~= "")
+	
+	-- Service is running if enabled AND cron active
+	status.running = status.enabled and status.cron_active
 	
 	-- Get mode from UCI
 	status.mode = uci:get("autoedu", "config", "mode") or "EFFICIENT"
 	
-	-- Check if enabled
-	status.enabled = (uci:get("autoedu", "config", "enabled") == "1")
+	-- Get cron schedule
+	if status.cron_active then
+		local interval = cron_check:match("^([^%s]+%s+[^%s]+%s+[^%s]+%s+[^%s]+%s+[^%s]+)")
+		if interval then
+			status.cron_schedule = interval
+			-- Translate cron to readable
+			if interval:match("%*/1") then
+				status.cron_readable = "Every 1 minute"
+			elseif interval:match("%*/3") then
+				status.cron_readable = "Every 3 minutes"
+			elseif interval:match("%*/5") then
+				status.cron_readable = "Every 5 minutes"
+			else
+				status.cron_readable = interval
+			end
+		else
+			status.cron_schedule = "Active"
+			status.cron_readable = "Active"
+		end
+	else
+		status.cron_schedule = "Not configured"
+		status.cron_readable = "Not configured"
+	end
 	
-	-- Get last check time
+	-- Get last check time from log
 	local log_file = uci:get("autoedu", "config", "log_file") or "/tmp/auto_edu.log"
 	if nixio.fs.access(log_file) then
-		local last_line = sys.exec("tail -1 " .. log_file)
-		status.last_log = last_line
+		-- Get last "Script Started" or "SELESAI" line
+		local last_check_line = sys.exec("grep -E 'Script Started|SELESAI' " .. log_file .. " | tail -1")
 		
-		-- Extract timestamp if available
-		local timestamp = last_line:match("%[(%d+/%d+/%d+ %d+:%d+:%d+)%]")
-		status.last_check = timestamp or "Unknown"
+		if last_check_line and last_check_line ~= "" then
+			-- Try to extract timestamp [DD/MM/YYYY HH:MM:SS]
+			local timestamp = last_check_line:match("%[([^%]]+)%]")
+			if timestamp then
+				status.last_check = timestamp
+				
+				-- Calculate time ago
+				local pattern = "(%d+)/(%d+)/(%d+) (%d+):(%d+):(%d+)"
+				local d, m, y, h, min, s = timestamp:match(pattern)
+				if d and m and y then
+					local log_time = os.time({year=y, month=m, day=d, hour=h, min=min, sec=s})
+					local diff = os.time() - log_time
+					local mins_ago = math.floor(diff / 60)
+					
+					if mins_ago < 1 then
+						status.last_check_ago = "just now"
+					elseif mins_ago < 60 then
+						status.last_check_ago = mins_ago .. " min ago"
+					else
+						local hours = math.floor(mins_ago / 60)
+						status.last_check_ago = hours .. " hour(s) ago"
+					end
+				end
+			else
+				status.last_check = "Unknown"
+				status.last_check_ago = "unknown"
+			end
+		else
+			status.last_check = "Not running yet"
+			status.last_check_ago = ""
+		end
 	else
 		status.last_check = "No logs yet"
+		status.last_check_ago = ""
 	end
 	
 	-- Get last renewal time
@@ -91,21 +148,91 @@ function api_status()
 	if nixio.fs.access(renewal_file) then
 		local f = io.open(renewal_file, "r")
 		if f then
-			local timestamp = f:read("*all")
+			local timestamp_str = f:read("*all")
 			f:close()
-			status.last_renewal = os.date("%d/%m/%Y %H:%M:%S", tonumber(timestamp))
+			
+			-- Remove whitespace/newlines
+			timestamp_str = timestamp_str:match("^%s*(.-)%s*$")
+			
+			local timestamp = tonumber(timestamp_str)
+			if timestamp and timestamp > 0 then
+				status.last_renewal = os.date("%d/%m/%Y %H:%M:%S", timestamp)
+				
+				-- Calculate time ago
+				local diff = os.time() - timestamp
+				local mins_ago = math.floor(diff / 60)
+				
+				if mins_ago < 60 then
+					status.last_renewal_ago = mins_ago .. " min ago"
+				elseif mins_ago < 1440 then
+					local hours = math.floor(mins_ago / 60)
+					status.last_renewal_ago = hours .. " hour(s) ago"
+				else
+					local days = math.floor(mins_ago / 1440)
+					status.last_renewal_ago = days .. " day(s) ago"
+				end
+			else
+				status.last_renewal = "Never"
+				status.last_renewal_ago = ""
+			end
+		else
+			status.last_renewal = "Never"
+			status.last_renewal_ago = ""
 		end
 	else
 		status.last_renewal = "Never"
+		status.last_renewal_ago = ""
 	end
 	
-	-- Get cron status
-	local cron_check = sys.exec("crontab -l 2>/dev/null | grep auto_edu.py")
-	status.cron_active = (cron_check ~= "")
-	status.cron_schedule = cron_check:match("^([^%s]+%s+[^%s]+%s+[^%s]+%s+[^%s]+%s+[^%s]+)")
+	-- Get next check time (based on cron and last check)
+	if status.cron_active and status.last_check ~= "No logs yet" and status.last_check ~= "Unknown" then
+		-- Parse last check time
+		local pattern = "(%d+)/(%d+)/(%d+) (%d+):(%d+):(%d+)"
+		local d, m, y, h, min, s = status.last_check:match(pattern)
+		
+		if d and m and y then
+			local last_time = os.time({year=y, month=m, day=d, hour=h, min=min, sec=s})
+			
+			-- Determine interval in seconds
+			local interval_secs = 180 -- default 3 minutes
+			if status.mode == "AGGRESSIVE" then
+				interval_secs = 60 -- 1 minute
+			end
+			
+			local next_time = last_time + interval_secs
+			local diff = next_time - os.time()
+			
+			if diff > 0 then
+				local mins = math.floor(diff / 60)
+				local secs = diff % 60
+				if mins > 0 then
+					status.next_check = "in " .. mins .. " min " .. secs .. " sec"
+				else
+					status.next_check = "in " .. secs .. " sec"
+				end
+			else
+				status.next_check = "now"
+			end
+		else
+			status.next_check = "unknown"
+		end
+	else
+		status.next_check = "unknown"
+	end
 	
 	-- Get ADB status
-	status.adb_connected = (sys.call("adb devices 2>/dev/null | grep -q device") == 0)
+	status.adb_connected = (sys.call("adb devices 2>/dev/null | grep -q 'device$'") == 0)
+	if status.adb_connected then
+		-- Get device name
+		local device_line = sys.exec("adb devices 2>/dev/null | grep -v 'List' | grep device")
+		local device_id = device_line:match("^([^%s]+)")
+		status.adb_device = device_id or "Connected"
+	end
+	
+	-- Get Telegram config status
+	local bot_token = uci:get("autoedu", "config", "bot_token") or ""
+	local chat_id = uci:get("autoedu", "config", "chat_id") or ""
+	status.telegram_configured = (bot_token ~= "" and chat_id ~= "")
 	
 	http.prepare_content("application/json")
 	http.write_json(status)

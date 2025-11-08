@@ -7,6 +7,8 @@ Sistem otomatis untuk monitoring dan perpanjangan kuota Edu
 Optimized for OpenWrt environment
 
 Edited Version by: Matsumiko
+Original script by: @zifahx
+Source: https://pastebin.com/ZbXMvX4D
 
 DUAL MODE VERSION - Support untuk:
 - EFFICIENT Mode: Normal to heavy usage (30GB/30+ min) - Low CPU
