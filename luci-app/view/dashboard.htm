@@ -1,0 +1,399 @@
+<%#
+Copyright 2025 Matsumiko
+Licensed under the Apache License, Version 2.0
+-%>
+
+<%+header%>
+
+<style>
+.autoedu-dashboard {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+.status-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.status-card h3 {
+	margin-top: 0;
+	color: #333;
+	border-bottom: 2px solid #007bff;
+	padding-bottom: 10px;
+}
+.status-indicator {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	margin-right: 8px;
+}
+.status-running { background: #28a745; }
+.status-stopped { background: #dc3545; }
+.status-info {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 15px;
+	margin-top: 15px;
+}
+.info-item {
+	padding: 10px;
+	background: #f8f9fa;
+	border-radius: 4px;
+}
+.info-label {
+	font-weight: bold;
+	color: #666;
+	font-size: 0.9em;
+}
+.info-value {
+	color: #333;
+	font-size: 1.1em;
+	margin-top: 5px;
+}
+.btn-group {
+	display: flex;
+	gap: 10px;
+	margin-top: 15px;
+	flex-wrap: wrap;
+}
+.btn {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.3s;
+}
+.btn-primary { background: #007bff; color: white; }
+.btn-success { background: #28a745; color: white; }
+.btn-danger { background: #dc3545; color: white; }
+.btn-warning { background: #ffc107; color: #333; }
+.btn:hover { opacity: 0.8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 15px;
+	margin-top: 15px;
+}
+.stat-box {
+	text-align: center;
+	padding: 15px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 8px;
+}
+.stat-value {
+	font-size: 2em;
+	font-weight: bold;
+}
+.stat-label {
+	font-size: 0.9em;
+	opacity: 0.9;
+	margin-top: 5px;
+}
+.mode-badge {
+	display: inline-block;
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-weight: bold;
+	font-size: 0.9em;
+}
+.mode-efficient {
+	background: #d4edda;
+	color: #155724;
+	border: 1px solid #c3e6cb;
+}
+.mode-aggressive {
+	background: #f8d7da;
+	color: #721c24;
+	border: 1px solid #f5c6cb;
+}
+.log-viewer {
+	background: #1e1e1e;
+	color: #d4d4d4;
+	padding: 15px;
+	border-radius: 4px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	max-height: 400px;
+	overflow-y: auto;
+	margin-top: 15px;
+}
+.log-line {
+	margin: 2px 0;
+	line-height: 1.4;
+}
+.log-info { color: #4fc3f7; }
+.log-success { color: #81c784; }
+.log-warn { color: #ffb74d; }
+.log-error { color: #e57373; }
+.loading {
+	text-align: center;
+	padding: 20px;
+	color: #666;
+}
+</style>
+
+<div class="autoedu-dashboard">
+	<h2>🤖 Auto-Edu Dashboard</h2>
+	
+	<!-- Service Status Card -->
+	<div class="status-card">
+		<h3>Service Status</h3>
+		<div id="service-status" class="loading">Loading...</div>
+		
+		<div class="btn-group" id="action-buttons" style="display:none;">
+			<button class="btn btn-success" onclick="performAction('start')" id="btn-start">
+				▶️ Start Service
+			</button>
+			<button class="btn btn-danger" onclick="performAction('stop')" id="btn-stop">
+				⏸ Stop Service
+			</button>
+			<button class="btn btn-warning" onclick="performAction('restart')">
+				🔄 Restart Service
+			</button>
+			<button class="btn btn-primary" onclick="performAction('run_now')">
+				▶️ Run Now
+			</button>
+		</div>
+	</div>
+	
+	<!-- Current Configuration Card -->
+	<div class="status-card">
+		<h3>Current Configuration</h3>
+		<div id="config-info" class="loading">Loading...</div>
+	</div>
+	
+	<!-- Statistics Card -->
+	<div class="status-card">
+		<h3>Statistics (Last 24h)</h3>
+		<div id="statistics" class="loading">Loading...</div>
+	</div>
+	
+	<!-- Recent Logs Card -->
+	<div class="status-card">
+		<h3>Recent Activity</h3>
+		<div class="btn-group">
+			<button class="btn btn-primary" onclick="refreshLogs()">🔄 Refresh</button>
+			<button class="btn btn-danger" onclick="clearLogs()">🗑 Clear Logs</button>
+			<a href="<%=url("admin/services/autoedu/logs")%>" class="btn btn-primary">📜 View Full Logs</a>
+		</div>
+		<div class="log-viewer" id="log-viewer">
+			<div class="loading">Loading logs...</div>
+		</div>
+	</div>
+</div>
+
+<script>
+// API base URL
+const API_BASE = '<%=url("admin/services/autoedu/api")%>';
+
+// Load dashboard data
+async function loadDashboard() {
+	try {
+		// Load service status
+		const statusResp = await fetch(API_BASE + '/status');
+		const status = await statusResp.json();
+		renderStatus(status);
+		
+		// Load statistics
+		const statsResp = await fetch(API_BASE + '/stats');
+		const stats = await statsResp.json();
+		renderStats(stats);
+		
+		// Load recent logs
+		await refreshLogs();
+		
+	} catch (error) {
+		console.error('Error loading dashboard:', error);
+	}
+}
+
+// Render service status
+function renderStatus(status) {
+	const statusDiv = document.getElementById('service-status');
+	const actionButtons = document.getElementById('action-buttons');
+	
+	const modeClass = status.mode === 'AGGRESSIVE' ? 'mode-aggressive' : 'mode-efficient';
+	const modeIcon = status.mode === 'AGGRESSIVE' ? '🔴' : '🟢';
+	const modeText = status.mode === 'AGGRESSIVE' ? 'AGGRESSIVE' : 'EFFICIENT';
+	
+	const statusIcon = status.running ? 
+		'<span class="status-indicator status-running"></span>Running' :
+		'<span class="status-indicator status-stopped"></span>Stopped';
+	
+	statusDiv.innerHTML = `
+		<div class="status-info">
+			<div class="info-item">
+				<div class="info-label">Status</div>
+				<div class="info-value">${statusIcon}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Mode</div>
+				<div class="info-value">
+					<span class="mode-badge ${modeClass}">${modeIcon} ${modeText}</span>
+				</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Last Check</div>
+				<div class="info-value">${status.last_check || 'N/A'}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Last Renewal</div>
+				<div class="info-value">${status.last_renewal || 'Never'}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Cron Schedule</div>
+				<div class="info-value">${status.cron_active ? status.cron_schedule || 'Active' : 'Inactive'}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">ADB Device</div>
+				<div class="info-value">${status.adb_connected ? '✅ Connected' : '❌ Disconnected'}</div>
+			</div>
+		</div>
+	`;
+	
+	// Show/hide buttons based on status
+	actionButtons.style.display = 'flex';
+	document.getElementById('btn-start').disabled = status.running;
+	document.getElementById('btn-stop').disabled = !status.running;
+	
+	// Render config info
+	const configDiv = document.getElementById('config-info');
+	const hasToken = status.bot_token !== '';
+	const hasChat = status.chat_id !== '';
+	
+	configDiv.innerHTML = `
+		<div class="status-info">
+			<div class="info-item">
+				<div class="info-label">Telegram Bot</div>
+				<div class="info-value">${hasToken ? '✅ Configured' : '❌ Not configured'}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Chat ID</div>
+				<div class="info-value">${hasChat ? '✅ Configured' : '❌ Not configured'}</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">Service</div>
+				<div class="info-value">${status.enabled ? '✅ Enabled' : '❌ Disabled'}</div>
+			</div>
+		</div>
+		<div class="btn-group">
+			<a href="<%=url("admin/services/autoedu/config")%>" class="btn btn-primary">✏️ Edit Configuration</a>
+			<a href="<%=url("admin/services/autoedu/mode")%>" class="btn btn-warning">🎚️ Change Mode</a>
+		</div>
+	`;
+}
+
+// Render statistics
+function renderStats(stats) {
+	const statsDiv = document.getElementById('statistics');
+	
+	statsDiv.innerHTML = `
+		<div class="stats-grid">
+			<div class="stat-box">
+				<div class="stat-value">${stats.checks_24h || 0}</div>
+				<div class="stat-label">Total Checks</div>
+			</div>
+			<div class="stat-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+				<div class="stat-value">${stats.renewals_24h || 0}</div>
+				<div class="stat-label">Renewals</div>
+			</div>
+			<div class="stat-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+				<div class="stat-value">${stats.success_rate || 100}%</div>
+				<div class="stat-label">Success Rate</div>
+			</div>
+		</div>
+	`;
+}
+
+// Refresh logs
+async function refreshLogs() {
+	try {
+		const resp = await fetch(API_BASE + '/logs?lines=50');
+		const data = await resp.json();
+		
+		const logViewer = document.getElementById('log-viewer');
+		
+		if (data.success && data.logs.length > 0) {
+			logViewer.innerHTML = data.logs.map(line => {
+				let className = 'log-line';
+				if (line.includes('[ERROR]')) className += ' log-error';
+				else if (line.includes('[WARN]')) className += ' log-warn';
+				else if (line.includes('[SUCCESS]')) className += ' log-success';
+				else if (line.includes('[INFO]')) className += ' log-info';
+				
+				return `<div class="${className}">${escapeHtml(line)}</div>`;
+			}).join('');
+			
+			// Auto-scroll to bottom
+			logViewer.scrollTop = logViewer.scrollHeight;
+		} else {
+			logViewer.innerHTML = '<div class="loading">No logs available</div>';
+		}
+	} catch (error) {
+		console.error('Error loading logs:', error);
+		document.getElementById('log-viewer').innerHTML = 
+			'<div class="log-error">Error loading logs</div>';
+	}
+}
+
+// Perform action
+async function performAction(action) {
+	if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) {
+		return;
+	}
+	
+	try {
+		const formData = new FormData();
+		formData.append('action', action);
+		
+		const resp = await fetch(API_BASE + '/action', {
+			method: 'POST',
+			body: formData
+		});
+		
+		const result = await resp.json();
+		
+		if (result.success) {
+			alert('Success: ' + result.message);
+			// Reload dashboard after action
+			setTimeout(loadDashboard, 1000);
+		} else {
+			alert('Error: ' + result.message);
+		}
+	} catch (error) {
+		alert('Error: ' + error.message);
+	}
+}
+
+// Clear logs
+async function clearLogs() {
+	if (!confirm('Are you sure you want to clear all logs?')) {
+		return;
+	}
+	
+	await performAction('clear_logs');
+	await refreshLogs();
+}
+
+// Utility: Escape HTML
+function escapeHtml(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+// Auto-refresh every 30 seconds
+setInterval(loadDashboard, 30000);
+
+// Initial load
+loadDashboard();
+</script>
+
+<%+footer%>

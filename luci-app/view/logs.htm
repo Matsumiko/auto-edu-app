@@ -1,0 +1,151 @@
+<%#
+Copyright 2025 Matsumiko
+Licensed under the Apache License, Version 2.0
+-%>
+
+<%+header%>
+
+<style>
+.log-controls {
+	background: #fff;
+	padding: 15px;
+	border-radius: 8px;
+	margin-bottom: 20px;
+	border: 1px solid #ddd;
+}
+.log-viewer-full {
+	background: #1e1e1e;
+	color: #d4d4d4;
+	padding: 20px;
+	border-radius: 8px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	height: 600px;
+	overflow-y: auto;
+	border: 1px solid #333;
+}
+.log-line {
+	margin: 2px 0;
+	line-height: 1.5;
+}
+.log-info { color: #4fc3f7; }
+.log-success { color: #81c784; }
+.log-warn { color: #ffb74d; }
+.log-error { color: #e57373; }
+</style>
+
+<h2>📜 Logs & History</h2>
+
+<div class="log-controls">
+	<strong>Filters:</strong>
+	<label>
+		Level:
+		<select id="filter-level">
+			<option value="all">All</option>
+			<option value="info">INFO</option>
+			<option value="success">SUCCESS</option>
+			<option value="warn">WARN</option>
+			<option value="error">ERROR</option>
+		</select>
+	</label>
+	<label>
+		Lines:
+		<select id="filter-lines">
+			<option value="50">50</option>
+			<option value="100" selected>100</option>
+			<option value="200">200</option>
+			<option value="500">500</option>
+			<option value="1000">1000</option>
+		</select>
+	</label>
+	<button class="cbi-button cbi-button-apply" onclick="loadLogs()">Apply Filter</button>
+	<button class="cbi-button" onclick="downloadLogs()">📥 Download</button>
+	<button class="cbi-button cbi-button-reset" onclick="clearAllLogs()">🗑 Clear</button>
+	<label style="float:right;">
+		<input type="checkbox" id="auto-refresh" checked> Auto-refresh (30s)
+	</label>
+</div>
+
+<div class="log-viewer-full" id="log-viewer-full">
+	<div style="text-align:center; padding:20px; color:#666;">Loading logs...</div>
+</div>
+
+<script>
+const API_BASE = '<%=url("admin/services/autoedu/api")%>';
+let autoRefreshInterval = null;
+
+async function loadLogs() {
+	const level = document.getElementById('filter-level').value;
+	const lines = document.getElementById('filter-lines').value;
+	
+	try {
+		const resp = await fetch(`${API_BASE}/logs?lines=${lines}&level=${level}`);
+		const data = await resp.json();
+		
+		const viewer = document.getElementById('log-viewer-full');
+		
+		if (data.success && data.logs.length > 0) {
+			viewer.innerHTML = data.logs.map(line => {
+				let className = 'log-line';
+				if (line.includes('[ERROR]')) className += ' log-error';
+				else if (line.includes('[WARN]')) className += ' log-warn';
+				else if (line.includes('[SUCCESS]')) className += ' log-success';
+				else if (line.includes('[INFO]')) className += ' log-info';
+				
+				return `<div class="${className}">${escapeHtml(line)}</div>`;
+			}).join('');
+			
+			// Scroll to bottom
+			viewer.scrollTop = viewer.scrollHeight;
+		} else {
+			viewer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No logs available</div>';
+		}
+	} catch (error) {
+		console.error('Error loading logs:', error);
+	}
+}
+
+async function downloadLogs() {
+	window.location.href = '/tmp/auto_edu.log';
+}
+
+async function clearAllLogs() {
+	if (!confirm('Clear all logs?')) return;
+	
+	try {
+		const formData = new FormData();
+		formData.append('action', 'clear_logs');
+		
+		await fetch(API_BASE + '/action', {
+			method: 'POST',
+			body: formData
+		});
+		
+		await loadLogs();
+		alert('Logs cleared');
+	} catch (error) {
+		alert('Error: ' + error.message);
+	}
+}
+
+function escapeHtml(text) {
+	const div = document.createElement('div');
+	div.textContent = text;
+	return div.innerHTML;
+}
+
+// Auto-refresh toggle
+document.getElementById('auto-refresh').addEventListener('change', function() {
+	if (this.checked) {
+		autoRefreshInterval = setInterval(loadLogs, 30000);
+	} else {
+		clearInterval(autoRefreshInterval);
+	}
+});
+
+// Initial load
+loadLogs();
+autoRefreshInterval = setInterval(loadLogs, 30000);
+</script>
+
+<%+footer%>
