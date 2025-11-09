@@ -60,8 +60,43 @@ function index()
 		call("api_test")).leaf = true
 end
 
+-- Update statistics from log file
+function update_stats()
+	local log_file = uci:get("autoedu", "config", "log_file") or "/tmp/auto_edu.log"
+	
+	if not nixio.fs.access(log_file) then
+		return
+	end
+	
+	-- Count script runs (total checks)
+	local checks = tonumber(sys.exec("grep -c 'AUTO EDU - DUAL MODE' " .. log_file .. " 2>/dev/null") or "0")
+	
+	-- Count renewals
+	local renewals = tonumber(sys.exec("grep -c 'MEMULAI PROSES RENEWAL' " .. log_file .. " 2>/dev/null") or "0")
+	
+	-- Update UCI stats
+	if checks > 0 then
+		uci:set("autoedu", "stats", "total_checks", tostring(checks))
+	end
+	
+	if renewals > 0 then
+		uci:set("autoedu", "stats", "total_renewals", tostring(renewals))
+	end
+	
+	-- Calculate success rate
+	if checks > 0 then
+		local success_rate = math.floor((checks - renewals) / checks * 100)
+		uci:set("autoedu", "stats", "success_rate", tostring(success_rate))
+	end
+	
+	uci:commit("autoedu")
+end
+
 -- API: Get service status
 function api_status()
+	-- Update stats first
+	update_stats()
+	
 	local status = {}
 	
 	-- Check if enabled in UCI
@@ -312,16 +347,29 @@ function api_action()
 	local result = {success = false, message = "Unknown action"}
 	
 	if action == "start" then
+		-- Enable service in UCI
+		uci:set("autoedu", "config", "enabled", "1")
+		uci:commit("autoedu")
+		-- Sync config
+		sys.call("/usr/share/autoedu/sync_config.sh")
+		-- Start service
 		sys.call("/etc/init.d/autoedu start")
 		result.success = true
-		result.message = "Service started"
+		result.message = "Service started and enabled"
 		
 	elseif action == "stop" then
+		-- Disable service in UCI
+		uci:set("autoedu", "config", "enabled", "0")
+		uci:commit("autoedu")
+		-- Stop service
 		sys.call("/etc/init.d/autoedu stop")
 		result.success = true
-		result.message = "Service stopped"
+		result.message = "Service stopped and disabled"
 		
 	elseif action == "restart" then
+		-- Sync config
+		sys.call("/usr/share/autoedu/sync_config.sh")
+		-- Restart service
 		sys.call("/etc/init.d/autoedu restart")
 		result.success = true
 		result.message = "Service restarted"
