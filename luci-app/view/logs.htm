@@ -6,194 +6,68 @@ Licensed under the Apache License, Version 2.0
 <%+header%>
 
 <style>
-.autoedu-logs {
-	max-width: 1200px;
-	margin: 16px auto 20px;
-	padding: 0 4px 4px;
-	box-sizing: border-box;
-}
-
-/* Title */
-.autoedu-logs h2 {
-	margin: 0 0 10px;
-	font-size: 1.7rem;
-	font-weight: 800;
-	letter-spacing: 0.03em;
-	background: linear-gradient(90deg, #38bdf8, #6366f1);
-	-webkit-background-clip: text;
-	color: transparent;
-	text-shadow: 0 0 10px rgba(15,23,42,0.9);
-	display: flex;
-	align-items: center;
-	gap: 6px;
-}
-
-/* Controls: dark glass bar */
 .log-controls {
-	background: rgba(15,23,42,0.92);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	padding: 9px 12px;
-	border-radius: 14px;
-	margin-bottom: 10px;
-	border: 1px solid rgba(75,85,99,0.9);
-	box-shadow: 0 8px 22px rgba(15,23,42,0.95);
-	color: #e5e7eb;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 14px;
-	font-size: 0.78rem;
-}
-
-.log-controls strong {
-	font-size: 0.8rem;
-	color: #bfdbfe;
-}
-
-.log-controls label {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	color: #e5e7eb;
-}
-
-.log-controls select {
-	background: rgba(9,9,11,0.98);
-	color: #e5e7eb;
-	border: 1px solid rgba(75,85,99,1);
-	border-radius: 6px;
-	padding: 4px 7px;
-	font-size: 0.75rem;
-	outline: none;
-}
-
-.log-controls button.cbi-button,
-.log-controls .cbi-button {
-	padding: 5px 10px;
+	background: #fff;
+	padding: 15px;
 	border-radius: 8px;
-	border: none;
-	font-size: 0.75rem;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	background: rgba(0,0,0,0.96);
-	color: #e5e7eb;
-	box-shadow: 0 3px 10px rgba(15,23,42,1);
-	transition: all 0.16s ease;
+	margin-bottom: 20px;
+	border: 1px solid #ddd;
 }
-
-.log-controls .cbi-button-apply {
-	background: linear-gradient(90deg, #22c55e, #16a34a);
-}
-
-.log-controls .cbi-button-reset {
-	background: linear-gradient(90deg, #ef4444, #b91c1c);
-}
-
-.log-controls button:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 6px 14px rgba(15,23,42,1);
-	opacity: 0.98;
-}
-
-.log-controls input[type="checkbox"] {
-	accent-color: #22c55e;
-	cursor: pointer;
-}
-
-/* Full log viewer */
 .log-viewer-full {
-	background: rgba(0,0,0,0.98);
+	background: #1e1e1e;
 	color: #d4d4d4;
-	padding: 8px 9px 7px;
-	border-radius: 10px;
-	font-family: 'JetBrains Mono','Fira Code','Courier New',monospace;
-	font-size: 0.7rem;
+	padding: 20px;
+	border-radius: 8px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
 	height: 600px;
 	overflow-y: auto;
-	border: 1px solid rgba(75,85,99,1);
-	box-shadow: inset 0 3px 8px rgba(15,23,42,1);
+	border: 1px solid #333;
 }
-
 .log-line {
-	margin: 1px 0;
+	margin: 2px 0;
 	line-height: 1.5;
-	white-space: pre-wrap;
-	word-break: break-word;
 }
-
-.log-info { color: #38bdf8; }
-.log-success { color: #4ade80; }
+.log-info { color: #4fc3f7; }
+.log-success { color: #81c784; }
 .log-warn { color: #ffb74d; }
 .log-error { color: #e57373; }
-
-/* Scrollbar */
-.log-viewer-full::-webkit-scrollbar {
-	width: 6px;
-}
-.log-viewer-full::-webkit-scrollbar-track {
-	background: transparent;
-}
-.log-viewer-full::-webkit-scrollbar-thumb {
-	background: #4b5563;
-	border-radius: 999px;
-}
-.log-viewer-full::-webkit-scrollbar-thumb:hover {
-	background: #9ca3af;
-}
-
-@media (max-width: 768px) {
-	.autoedu-logs {
-		margin: 12px 4px 16px;
-	}
-	.log-controls {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-	.log-controls label[style] {
-		float: none !important;
-	}
-}
 </style>
 
-<div class="autoedu-logs">
-	<h2>📜 Logs &amp; History</h2>
+<h2>📜 Logs & History</h2>
 
-	<div class="log-controls">
-		<strong>Filters</strong>
-		<label>
-			Level:
-			<select id="filter-level">
-				<option value="all">All</option>
-				<option value="info">INFO</option>
-				<option value="success">SUCCESS</option>
-				<option value="warn">WARN</option>
-				<option value="error">ERROR</option>
-			</select>
-		</label>
-		<label>
-			Lines:
-			<select id="filter-lines">
-				<option value="50">50</option>
-				<option value="100" selected>100</option>
-				<option value="200">200</option>
-				<option value="500">500</option>
-				<option value="1000">1000</option>
-			</select>
-		</label>
-		<button class="cbi-button cbi-button-apply" onclick="loadLogs()">Apply</button>
-		<button class="cbi-button" onclick="downloadLogs()">📥 Download</button>
-		<button class="cbi-button cbi-button-reset" onclick="clearAllLogs()">🗑 Clear</button>
-		<label style="margin-left:auto;">
-			<input type="checkbox" id="auto-refresh" checked> Auto-refresh (30s)
-		</label>
-	</div>
+<div class="log-controls">
+	<strong>Filters:</strong>
+	<label>
+		Level:
+		<select id="filter-level">
+			<option value="all">All</option>
+			<option value="info">INFO</option>
+			<option value="success">SUCCESS</option>
+			<option value="warn">WARN</option>
+			<option value="error">ERROR</option>
+		</select>
+	</label>
+	<label>
+		Lines:
+		<select id="filter-lines">
+			<option value="50">50</option>
+			<option value="100" selected>100</option>
+			<option value="200">200</option>
+			<option value="500">500</option>
+			<option value="1000">1000</option>
+		</select>
+	</label>
+	<button class="cbi-button cbi-button-apply" onclick="loadLogs()">Apply Filter</button>
+	<button class="cbi-button" onclick="downloadLogs()">📥 Download</button>
+	<button class="cbi-button cbi-button-reset" onclick="clearAllLogs()">🗑 Clear</button>
+	<label style="float:right;">
+		<input type="checkbox" id="auto-refresh" checked> Auto-refresh (30s)
+	</label>
+</div>
 
-	<div class="log-viewer-full" id="log-viewer-full">
-		<div style="text-align:center; padding:20px; color:#9ca3af;">Loading logs...</div>
-	</div>
+<div class="log-viewer-full" id="log-viewer-full">
+	<div style="text-align:center; padding:20px; color:#666;">Loading logs...</div>
 </div>
 
 <script>
@@ -203,13 +77,13 @@ let autoRefreshInterval = null;
 async function loadLogs() {
 	const level = document.getElementById('filter-level').value;
 	const lines = document.getElementById('filter-lines').value;
-
+	
 	try {
 		const resp = await fetch(`${API_BASE}/logs?lines=${lines}&level=${level}`);
 		const data = await resp.json();
-
+		
 		const viewer = document.getElementById('log-viewer-full');
-
+		
 		if (data.success && data.logs.length > 0) {
 			viewer.innerHTML = data.logs.map(line => {
 				let className = 'log-line';
@@ -217,33 +91,36 @@ async function loadLogs() {
 				else if (line.includes('[WARN]')) className += ' log-warn';
 				else if (line.includes('[SUCCESS]')) className += ' log-success';
 				else if (line.includes('[INFO]')) className += ' log-info';
+				
 				return `<div class="${className}">${escapeHtml(line)}</div>`;
 			}).join('');
+			
+			// Scroll to bottom
 			viewer.scrollTop = viewer.scrollHeight;
 		} else {
-			viewer.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af;">No logs available</div>';
+			viewer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No logs available</div>';
 		}
 	} catch (error) {
 		console.error('Error loading logs:', error);
 	}
 }
 
-function downloadLogs() {
+async function downloadLogs() {
 	window.location.href = '/tmp/auto_edu.log';
 }
 
 async function clearAllLogs() {
 	if (!confirm('Clear all logs?')) return;
-
+	
 	try {
 		const formData = new FormData();
 		formData.append('action', 'clear_logs');
-
+		
 		await fetch(API_BASE + '/action', {
 			method: 'POST',
 			body: formData
 		});
-
+		
 		await loadLogs();
 		alert('Logs cleared');
 	} catch (error) {
@@ -258,7 +135,7 @@ function escapeHtml(text) {
 }
 
 // Auto-refresh toggle
-document.getElementById('auto-refresh').addEventListener('change', function () {
+document.getElementById('auto-refresh').addEventListener('change', function() {
 	if (this.checked) {
 		autoRefreshInterval = setInterval(loadLogs, 30000);
 	} else {
@@ -266,7 +143,7 @@ document.getElementById('auto-refresh').addEventListener('change', function () {
 	}
 });
 
-// Initial
+// Initial load
 loadLogs();
 autoRefreshInterval = setInterval(loadLogs, 30000);
 </script>

@@ -155,21 +155,7 @@ notif_detail.rmempty = false
 o = notif:option(DummyValue, "_info", " ")
 o.rawhtml = true
 o.default = [[
-<style>
-.autoedu-notif-info {
-	margin-top: 6px;
-	padding: 8px 10px;
-	border-radius: 10px;
-	background: rgba(15,23,42,0.92);
-	color: #e5e7eb;
-	border: 1px solid rgba(75,85,99,0.9);
-	font-size: 0.8rem;
-}
-.autoedu-notif-info ul {
-	margin: 4px 0 0 16px;
-}
-</style>
-<div class="autoedu-notif-info">
+<div class="cbi-value-description">
 	<strong>Notifications that are ALWAYS sent:</strong>
 	<ul>
 		<li>⚠️ Low quota alert</li>
@@ -225,19 +211,12 @@ end
 
 -- After save, sync config to .env
 function m.on_after_commit(self)
-	-- Sync config first
 	sys.call("/usr/share/autoedu/sync_config.sh")
 	
-	-- Check enabled status
+	-- Restart service if enabled
 	local enabled = uci:get("autoedu", "config", "enabled")
-	
 	if enabled == "1" then
-		-- Service should be running
-		sys.call("/etc/init.d/autoedu stop 2>/dev/null")
-		sys.call("/etc/init.d/autoedu start")
-	else
-		-- Service should be stopped
-		sys.call("/etc/init.d/autoedu stop")
+		sys.call("/etc/init.d/autoedu restart")
 	end
 end
 
