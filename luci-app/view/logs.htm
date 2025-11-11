@@ -6,125 +6,745 @@ Licensed under the Apache License, Version 2.0
 <%+header%>
 
 <style>
+/* Import font untuk konsistensi */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Background gradient matching dashboard */
+body {
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+	background-attachment: fixed;
+	min-height: 100vh;
+}
+
+.autoedu-logs {
+	max-width: 1400px;
+	margin: 20px auto;
+	padding: 0 16px;
+	box-sizing: border-box;
+	animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Header Section */
+.logs-header {
+	text-align: center;
+	margin-bottom: 32px;
+	padding: 24px;
+	background: rgba(15, 23, 42, 0.6);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-radius: 24px;
+	border: 1px solid rgba(148, 163, 253, 0.2);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	position: relative;
+	overflow: hidden;
+}
+
+.logs-header::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+	background-size: 200% 100%;
+	animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+	0%, 100% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+}
+
+.autoedu-logs h2 {
+	margin: 0 0 12px;
+	font-size: 2.5rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.2); }
+}
+
+.logs-subtitle {
+	color: #cbd5e1;
+	font-size: 1rem;
+	opacity: 0.9;
+	font-weight: 500;
+}
+
+/* Controls Section - Modern filter bar */
 .log-controls {
-	background: #fff;
-	padding: 15px;
-	border-radius: 8px;
+	background: rgba(15, 23, 42, 0.7);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	padding: 20px 24px;
+	border-radius: 20px;
 	margin-bottom: 20px;
-	border: 1px solid #ddd;
+	border: 1px solid rgba(148, 163, 253, 0.15);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	color: #e5e7eb;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.log-controls:hover {
+	box-shadow: 0 12px 48px rgba(59, 130, 246, 0.2);
+	border-color: rgba(148, 163, 253, 0.3);
+}
+
+.filter-section {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.filter-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #94a3b8;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.log-controls label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: #e0e7ff;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: color 0.2s ease;
+}
+
+.log-controls label:hover {
+	color: #ffffff;
+}
+
+.log-controls select {
+	background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+	color: #f1f5f9;
+	border: 1px solid rgba(148, 163, 253, 0.2);
+	border-radius: 10px;
+	padding: 8px 32px 8px 12px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	outline: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+}
+
+.log-controls select:hover {
+	border-color: rgba(148, 163, 253, 0.4);
+	background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.9));
+}
+
+.log-controls select:focus {
+	border-color: #60a5fa;
+	box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Modern Buttons */
+.controls-actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-left: auto;
+}
+
+.cbi-button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 600;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	position: relative;
+	overflow: hidden;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+.cbi-button::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.cbi-button:hover::before {
+	opacity: 1;
+}
+
+.cbi-button-apply {
+	background: linear-gradient(135deg, #3b82f6, #6366f1);
+	color: white;
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.cbi-button-apply:hover {
+	box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+	transform: translateY(-2px);
+}
+
+.cbi-button-download {
+	background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+	color: white;
+	box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.cbi-button-download:hover {
+	box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
+	transform: translateY(-2px);
+}
+
+.cbi-button-reset {
+	background: linear-gradient(135deg, #ef4444, #dc2626);
+	color: white;
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.cbi-button-reset:hover {
+	box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+	transform: translateY(-2px);
+}
+
+.cbi-button:active {
+	transform: translateY(0) scale(0.98);
+}
+
+/* Auto-refresh toggle */
+.auto-refresh-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 16px;
+	background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+	border: 1px solid rgba(34, 197, 94, 0.3);
+	border-radius: 100px;
+	transition: all 0.3s ease;
+}
+
+.auto-refresh-wrapper:hover {
+	background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
+	border-color: rgba(34, 197, 94, 0.5);
+}
+
+.auto-refresh-wrapper input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	accent-color: #22c55e;
+	cursor: pointer;
+}
+
+/* Log Viewer Container */
+.log-viewer-container {
+	background: rgba(15, 23, 42, 0.7);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(148, 163, 253, 0.15);
+	border-radius: 20px;
+	padding: 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.log-viewer-container:hover {
+	box-shadow: 0 12px 48px rgba(59, 130, 246, 0.2);
+	border-color: rgba(148, 163, 253, 0.3);
+}
+
+.log-viewer-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid rgba(148, 163, 253, 0.1);
+}
+
+.log-viewer-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #f1f5f9;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.log-viewer-title::before {
+	content: "💻";
+	font-size: 1.5rem;
+}
+
+.log-count {
+	font-size: 0.875rem;
+	color: #94a3b8;
+	font-weight: 500;
+	padding: 4px 12px;
+	background: rgba(59, 130, 246, 0.1);
+	border-radius: 100px;
+	border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Full Log Viewer - Terminal Style */
 .log-viewer-full {
-	background: #1e1e1e;
-	color: #d4d4d4;
+	background: rgba(0, 0, 0, 0.95);
+	color: #e4e4e7;
 	padding: 20px;
-	border-radius: 8px;
-	font-family: 'Courier New', monospace;
-	font-size: 0.9em;
-	height: 600px;
+	border-radius: 12px;
+	font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+	font-size: 0.8rem;
+	height: 700px;
 	overflow-y: auto;
-	border: 1px solid #333;
+	border: 1px solid rgba(148, 163, 253, 0.2);
+	box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
+	position: relative;
+	line-height: 1.6;
 }
+
+.log-viewer-full::before {
+	content: '$ tail -f auto_edu.log';
+	position: sticky;
+	top: 0;
+	left: 0;
+	right: 0;
+	display: block;
+	padding: 12px 16px;
+	background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+	color: #60a5fa;
+	font-weight: 600;
+	font-size: 0.75rem;
+	border-bottom: 1px solid rgba(148, 163, 253, 0.2);
+	border-radius: 8px 8px 0 0;
+	margin: -20px -20px 16px -20px;
+	z-index: 10;
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+
 .log-line {
-	margin: 2px 0;
-	line-height: 1.5;
+	margin: 4px 0;
+	padding: 8px 12px;
+	border-radius: 6px;
+	white-space: pre-wrap;
+	word-break: break-word;
+	transition: all 0.2s ease;
+	position: relative;
+	border-left: 3px solid transparent;
 }
-.log-info { color: #4fc3f7; }
-.log-success { color: #81c784; }
-.log-warn { color: #ffb74d; }
-.log-error { color: #e57373; }
+
+.log-line:hover {
+	background: rgba(59, 130, 246, 0.08);
+	border-left-color: rgba(59, 130, 246, 0.5);
+}
+
+.log-info {
+	color: #60a5fa;
+	border-left-color: #3b82f6;
+}
+
+.log-info:hover {
+	background: rgba(59, 130, 246, 0.1);
+}
+
+.log-success {
+	color: #4ade80;
+	border-left-color: #22c55e;
+	font-weight: 500;
+}
+
+.log-success:hover {
+	background: rgba(34, 197, 94, 0.1);
+}
+
+.log-warn {
+	color: #fbbf24;
+	border-left-color: #f59e0b;
+	font-weight: 500;
+}
+
+.log-warn:hover {
+	background: rgba(245, 158, 11, 0.1);
+}
+
+.log-error {
+	color: #f87171;
+	border-left-color: #ef4444;
+	font-weight: 600;
+	background: rgba(239, 68, 68, 0.05);
+}
+
+.log-error:hover {
+	background: rgba(239, 68, 68, 0.12);
+}
+
+/* Loading State */
+.loading-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 60px 20px;
+	color: #94a3b8;
+	text-align: center;
+}
+
+.loading-spinner {
+	font-size: 3rem;
+	margin-bottom: 16px;
+	animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+.loading-text {
+	font-size: 1rem;
+	font-weight: 500;
+	opacity: 0.8;
+}
+
+/* Empty State */
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 80px 20px;
+	color: #94a3b8;
+	text-align: center;
+}
+
+.empty-icon {
+	font-size: 4rem;
+	margin-bottom: 16px;
+	opacity: 0.5;
+}
+
+.empty-text {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #cbd5e1;
+	margin-bottom: 8px;
+}
+
+.empty-subtext {
+	font-size: 0.875rem;
+	opacity: 0.8;
+}
+
+/* Custom Scrollbar */
+.log-viewer-full::-webkit-scrollbar {
+	width: 10px;
+}
+
+.log-viewer-full::-webkit-scrollbar-track {
+	background: rgba(15, 23, 42, 0.5);
+	border-radius: 5px;
+}
+
+.log-viewer-full::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, #3b82f6, #6366f1);
+	border-radius: 5px;
+	transition: background 0.3s ease;
+}
+
+.log-viewer-full::-webkit-scrollbar-thumb:hover {
+	background: linear-gradient(180deg, #60a5fa, #818cf8);
+}
+
+/* Stats Badge */
+.stats-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+	border: 1px solid rgba(139, 92, 246, 0.3);
+	border-radius: 100px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #c7d2fe;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+	.log-controls {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.filter-section {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.controls-actions {
+		width: 100%;
+		margin-left: 0;
+		justify-content: stretch;
+	}
+
+	.cbi-button {
+		flex: 1;
+	}
+
+	.auto-refresh-wrapper {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.log-viewer-full {
+		height: 500px;
+		font-size: 0.7rem;
+	}
+}
+
+@media (max-width: 640px) {
+	.autoedu-logs {
+		padding: 0 12px;
+	}
+
+	.autoedu-logs h2 {
+		font-size: 2rem;
+	}
+
+	.filter-section {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 12px;
+	}
+
+	.controls-actions {
+		flex-direction: column;
+	}
+
+	.log-viewer-full {
+		height: 400px;
+		font-size: 0.65rem;
+	}
+
+	.log-viewer-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+}
+
+/* Animation for new log entries */
+@keyframes newLogEntry {
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.log-line.new-entry {
+	animation: newLogEntry 0.3s ease-out;
+}
 </style>
 
-<h2>📜 Logs & History</h2>
+<div class="autoedu-logs">
+	<div class="logs-header">
+		<h2>📜 Logs & History</h2>
+		<p class="logs-subtitle">Real-time monitoring & debugging AutoEdu service</p>
+	</div>
 
-<div class="log-controls">
-	<strong>Filters:</strong>
-	<label>
-		Level:
-		<select id="filter-level">
-			<option value="all">All</option>
-			<option value="info">INFO</option>
-			<option value="success">SUCCESS</option>
-			<option value="warn">WARN</option>
-			<option value="error">ERROR</option>
-		</select>
-	</label>
-	<label>
-		Lines:
-		<select id="filter-lines">
-			<option value="50">50</option>
-			<option value="100" selected>100</option>
-			<option value="200">200</option>
-			<option value="500">500</option>
-			<option value="1000">1000</option>
-		</select>
-	</label>
-	<button class="cbi-button cbi-button-apply" onclick="loadLogs()">Apply Filter</button>
-	<button class="cbi-button" onclick="downloadLogs()">📥 Download</button>
-	<button class="cbi-button cbi-button-reset" onclick="clearAllLogs()">🗑 Clear</button>
-	<label style="float:right;">
-		<input type="checkbox" id="auto-refresh" checked> Auto-refresh (30s)
-	</label>
-</div>
+	<div class="log-controls">
+		<div class="filter-section">
+			<span class="filter-label">🎚️ Filters</span>
+			<label>
+				Level:
+				<select id="filter-level">
+					<option value="all">All Levels</option>
+					<option value="info">INFO</option>
+					<option value="success">SUCCESS</option>
+					<option value="warn">WARNING</option>
+					<option value="error">ERROR</option>
+				</select>
+			</label>
+			<label>
+				Lines:
+				<select id="filter-lines">
+					<option value="50">50 lines</option>
+					<option value="100" selected>100 lines</option>
+					<option value="200">200 lines</option>
+					<option value="500">500 lines</option>
+					<option value="1000">1000 lines</option>
+				</select>
+			</label>
+		</div>
 
-<div class="log-viewer-full" id="log-viewer-full">
-	<div style="text-align:center; padding:20px; color:#666;">Loading logs...</div>
+		<div class="controls-actions">
+			<button class="cbi-button cbi-button-apply" onclick="loadLogs()">
+				✨ Apply Filters
+			</button>
+			<button class="cbi-button cbi-button-download" onclick="downloadLogs()">
+				📥 Download
+			</button>
+			<button class="cbi-button cbi-button-reset" onclick="clearAllLogs()">
+				🗑️ Clear All
+			</button>
+		</div>
+
+		<div class="auto-refresh-wrapper">
+			<input type="checkbox" id="auto-refresh" checked>
+			<label for="auto-refresh">Auto-refresh (30s)</label>
+		</div>
+	</div>
+
+	<div class="log-viewer-container">
+		<div class="log-viewer-header">
+			<div class="log-viewer-title">Terminal Output</div>
+			<div class="log-count" id="log-count">
+				<span id="log-count-number">0</span> entries
+			</div>
+		</div>
+
+		<div class="log-viewer-full" id="log-viewer-full">
+			<div class="loading-state">
+				<div class="loading-spinner">⚡</div>
+				<div class="loading-text">Loading logs...</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
 const API_BASE = '<%=url("admin/services/autoedu/api")%>';
 let autoRefreshInterval = null;
+let previousLogCount = 0;
 
 async function loadLogs() {
 	const level = document.getElementById('filter-level').value;
 	const lines = document.getElementById('filter-lines').value;
-	
+
 	try {
 		const resp = await fetch(`${API_BASE}/logs?lines=${lines}&level=${level}`);
 		const data = await resp.json();
-		
+
 		const viewer = document.getElementById('log-viewer-full');
-		
+		const countElement = document.getElementById('log-count-number');
+
 		if (data.success && data.logs.length > 0) {
-			viewer.innerHTML = data.logs.map(line => {
+			const newLogCount = data.logs.length;
+			const hasNewLogs = newLogCount > previousLogCount;
+			
+			viewer.innerHTML = data.logs.map((line, index) => {
 				let className = 'log-line';
 				if (line.includes('[ERROR]')) className += ' log-error';
 				else if (line.includes('[WARN]')) className += ' log-warn';
 				else if (line.includes('[SUCCESS]')) className += ' log-success';
 				else if (line.includes('[INFO]')) className += ' log-info';
 				
+				// Add animation class for new entries
+				if (hasNewLogs && index >= previousLogCount) {
+					className += ' new-entry';
+				}
+				
 				return `<div class="${className}">${escapeHtml(line)}</div>`;
 			}).join('');
 			
-			// Scroll to bottom
+			countElement.textContent = newLogCount;
+			previousLogCount = newLogCount;
+			
+			// Auto scroll to bottom
 			viewer.scrollTop = viewer.scrollHeight;
 		} else {
-			viewer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No logs available</div>';
+			viewer.innerHTML = `
+				<div class="empty-state">
+					<div class="empty-icon">📝</div>
+					<div class="empty-text">No logs available</div>
+					<div class="empty-subtext">Logs akan muncul saat AutoEdu service berjalan</div>
+				</div>
+			`;
+			countElement.textContent = '0';
+			previousLogCount = 0;
 		}
 	} catch (error) {
 		console.error('Error loading logs:', error);
+		const viewer = document.getElementById('log-viewer-full');
+		viewer.innerHTML = `
+			<div class="empty-state">
+				<div class="empty-icon">❌</div>
+				<div class="empty-text">Error loading logs</div>
+				<div class="empty-subtext">${escapeHtml(error.message)}</div>
+			</div>
+		`;
 	}
 }
 
-async function downloadLogs() {
+function downloadLogs() {
 	window.location.href = '/tmp/auto_edu.log';
 }
 
 async function clearAllLogs() {
-	if (!confirm('Clear all logs?')) return;
-	
+	if (!confirm('⚠️ Yakin mau clear semua logs? Action ini tidak bisa di-undo!')) return;
+
 	try {
 		const formData = new FormData();
 		formData.append('action', 'clear_logs');
-		
-		await fetch(API_BASE + '/action', {
+
+		const resp = await fetch(API_BASE + '/action', {
 			method: 'POST',
 			body: formData
 		});
-		
-		await loadLogs();
-		alert('Logs cleared');
+
+		const result = await resp.json();
+
+		if (result.success) {
+			await loadLogs();
+			showNotification('✅ Logs berhasil dihapus!', 'success');
+		} else {
+			showNotification('❌ Error: ' + result.message, 'error');
+		}
 	} catch (error) {
-		alert('Error: ' + error.message);
+		showNotification('❌ Error: ' + error.message, 'error');
 	}
 }
 
@@ -134,18 +754,69 @@ function escapeHtml(text) {
 	return div.innerHTML;
 }
 
-// Auto-refresh toggle
-document.getElementById('auto-refresh').addEventListener('change', function() {
+function showNotification(message, type = 'info') {
+	// Simple alert for now, bisa diganti dengan toast notification
+	alert(message);
+}
+
+// Auto-refresh toggle dengan visual feedback
+document.getElementById('auto-refresh').addEventListener('change', function () {
+	const wrapper = this.closest('.auto-refresh-wrapper');
+	
 	if (this.checked) {
 		autoRefreshInterval = setInterval(loadLogs, 30000);
+		wrapper.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+		wrapper.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15))';
 	} else {
 		clearInterval(autoRefreshInterval);
+		wrapper.style.borderColor = 'rgba(148, 163, 253, 0.3)';
+		wrapper.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1))';
 	}
 });
 
-// Initial load
+// Filter change handlers
+document.getElementById('filter-level').addEventListener('change', loadLogs);
+document.getElementById('filter-lines').addEventListener('change', loadLogs);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+	// Ctrl/Cmd + R untuk refresh
+	if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+		e.preventDefault();
+		loadLogs();
+	}
+	
+	// Ctrl/Cmd + K untuk clear (dengan confirm)
+	if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+		e.preventDefault();
+		clearAllLogs();
+	}
+});
+
+// Initial load dengan smooth transition
 loadLogs();
 autoRefreshInterval = setInterval(loadLogs, 30000);
+
+// Visual feedback saat page focus/blur
+let isPageVisible = true;
+
+document.addEventListener('visibilitychange', function() {
+	if (document.hidden) {
+		isPageVisible = false;
+		// Optional: stop auto-refresh saat tab tidak aktif untuk save resources
+	} else {
+		isPageVisible = true;
+		// Refresh logs saat user kembali ke tab
+		loadLogs();
+	}
+});
+
+// Show loading indicator saat fetch
+const originalFetch = window.fetch;
+window.fetch = function(...args) {
+	// Could add loading indicator here
+	return originalFetch.apply(this, args);
+};
 </script>
 
 <%+footer%>

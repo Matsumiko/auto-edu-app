@@ -6,146 +6,710 @@ Licensed under the Apache License, Version 2.0
 <%+header%>
 
 <style>
+/* Import font untuk lebih modern */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Container utama dengan gradient background */
+body {
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+	background-attachment: fixed;
+	min-height: 100vh;
+}
+
 .autoedu-dashboard {
-	max-width: 1200px;
-	margin: 0 auto;
+	max-width: 1280px;
+	margin: 20px auto;
+	padding: 0 16px;
+	box-sizing: border-box;
+	animation: fadeIn 0.6s ease-out;
 }
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Header Section - Lebih eye-catching */
+.dashboard-header {
+	text-align: center;
+	margin-bottom: 32px;
+	padding: 24px;
+	background: rgba(15, 23, 42, 0.6);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-radius: 24px;
+	border: 1px solid rgba(148, 163, 253, 0.2);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	position: relative;
+	overflow: hidden;
+}
+
+.dashboard-header::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+	background-size: 200% 100%;
+	animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+	0%, 100% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+}
+
+.autoedu-dashboard h2 {
+	margin: 0 0 12px;
+	font-size: 2.5rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: titleGlow 2s ease-in-out infinite;
+	text-shadow: 0 0 40px rgba(96, 165, 250, 0.3);
+}
+
+@keyframes titleGlow {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.2); }
+}
+
+.autoedu-subtitle {
+	margin: 8px 0 16px;
+	font-size: 1rem;
+	color: #cbd5e1;
+	opacity: 0.9;
+	font-weight: 500;
+}
+
+/* Badge pills - Lebih sleek */
+.autoedu-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: center;
+}
+
+.autoedu-pill {
+	padding: 8px 16px;
+	border-radius: 100px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: #e0e7ff;
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border: 1px solid rgba(139, 92, 246, 0.3);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.autoedu-pill:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+	border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Cards - More premium look */
 .status-card {
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 8px;
-	padding: 20px;
+	background: rgba(15, 23, 42, 0.7);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(148, 163, 253, 0.15);
+	border-radius: 20px;
+	padding: 24px;
 	margin-bottom: 20px;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	overflow: hidden;
+	animation: cardSlideIn 0.6s ease-out backwards;
 }
+
+.status-card:nth-child(1) { animation-delay: 0.1s; }
+.status-card:nth-child(2) { animation-delay: 0.2s; }
+.status-card:nth-child(3) { animation-delay: 0.3s; }
+.status-card:nth-child(4) { animation-delay: 0.4s; }
+.status-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes cardSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.status-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 48px rgba(59, 130, 246, 0.2);
+	border-color: rgba(148, 163, 253, 0.3);
+}
+
+.status-card::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.status-card:hover::before {
+	opacity: 1;
+}
+
+/* Card Title */
 .status-card h3 {
-	margin-top: 0;
-	color: #333;
-	border-bottom: 2px solid #007bff;
-	padding-bottom: 10px;
+	margin: 0 0 20px;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #f1f5f9;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	letter-spacing: -0.01em;
 }
+
+.status-card h3::before {
+	content: "";
+	width: 24px;
+	height: 24px;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+	transition: all 0.3s ease;
+}
+
+.status-card:hover h3::before {
+	transform: rotate(180deg);
+	box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+/* Status Indicator - More animated */
 .status-indicator {
 	display: inline-block;
-	width: 12px;
-	height: 12px;
-	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
 	margin-right: 8px;
+	position: relative;
 }
-.status-running { background: #28a745; }
-.status-stopped { background: #dc3545; }
+
+.status-indicator::before {
+	content: '';
+	position: absolute;
+	inset: -4px;
+	border-radius: 999px;
+	animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes statusPulse {
+	0%, 100% {
+		box-shadow: 0 0 0 0 currentColor;
+		opacity: 1;
+	}
+	50% {
+		box-shadow: 0 0 0 8px currentColor;
+		opacity: 0;
+	}
+}
+
+.status-running {
+	background: #22c55e;
+	box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.status-running::before {
+	color: rgba(34, 197, 94, 0.4);
+}
+
+.status-stopped {
+	background: #f97316;
+	box-shadow: 0 0 12px rgba(249, 115, 22, 0.6);
+}
+
+.status-stopped::before {
+	color: rgba(249, 115, 22, 0.4);
+}
+
+/* Grid info - Better spacing */
 .status-info {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 15px;
-	margin-top: 15px;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+	margin-top: 8px;
 }
+
 .info-item {
-	padding: 10px;
-	background: #f8f9fa;
-	border-radius: 4px;
+	padding: 16px;
+	background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 16px;
+	border: 1px solid rgba(148, 163, 253, 0.1);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	overflow: hidden;
 }
+
+.info-item::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 4px;
+	height: 100%;
+	background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.info-item:hover {
+	transform: translateY(-4px) scale(1.02);
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+	border-color: rgba(148, 163, 253, 0.3);
+}
+
+.info-item:hover::before {
+	opacity: 1;
+}
+
 .info-label {
-	font-weight: bold;
-	color: #666;
-	font-size: 0.9em;
+	font-weight: 600;
+	color: #94a3b8;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	margin-bottom: 8px;
 }
+
 .info-value {
-	color: #333;
-	font-size: 1.1em;
-	margin-top: 5px;
+	color: #f1f5f9;
+	font-size: 1.1rem;
+	font-weight: 700;
+	margin-bottom: 8px;
+	letter-spacing: -0.01em;
 }
+
+.info-note,
+.info-item small {
+	display: block;
+	font-size: 0.75rem;
+	color: #94a3b8;
+	line-height: 1.5;
+	margin-top: 4px;
+}
+
+/* Mode badge - More vibrant */
+.mode-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	border-radius: 100px;
+	font-weight: 700;
+	font-size: 0.75rem;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	transition: all 0.3s ease;
+}
+
+.mode-efficient {
+	background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+	color: #86efac;
+	border: 1.5px solid rgba(34, 197, 94, 0.5);
+	box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.mode-efficient:hover {
+	box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+	transform: scale(1.05);
+}
+
+.mode-aggressive {
+	background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.2));
+	color: #fdba74;
+	border: 1.5px solid rgba(249, 115, 22, 0.5);
+	box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.mode-aggressive:hover {
+	box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+	transform: scale(1.05);
+}
+
+/* Buttons - More modern & interactive */
 .btn-group {
 	display: flex;
-	gap: 10px;
-	margin-top: 15px;
+	gap: 12px;
+	margin-top: 20px;
 	flex-wrap: wrap;
 }
+
 .btn {
-	padding: 10px 20px;
+	padding: 12px 24px;
 	border: none;
-	border-radius: 4px;
+	border-radius: 12px;
 	cursor: pointer;
-	font-size: 14px;
-	transition: all 0.3s;
+	font-size: 0.875rem;
+	font-weight: 600;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	position: relative;
+	overflow: hidden;
+	letter-spacing: 0.02em;
 }
-.btn-primary { background: #007bff; color: white; }
-.btn-success { background: #28a745; color: white; }
-.btn-danger { background: #dc3545; color: white; }
-.btn-warning { background: #ffc107; color: #333; }
-.btn:hover { opacity: 0.8; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.btn:hover::before {
+	opacity: 1;
+}
+
+.btn-primary {
+	background: linear-gradient(135deg, #3b82f6, #6366f1);
+	color: white;
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+	box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+	transform: translateY(-2px);
+}
+
+.btn-success {
+	background: linear-gradient(135deg, #22c55e, #16a34a);
+	color: white;
+	box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-success:hover {
+	box-shadow: 0 8px 24px rgba(34, 197, 94, 0.5);
+	transform: translateY(-2px);
+}
+
+.btn-danger {
+	background: linear-gradient(135deg, #ef4444, #dc2626);
+	color: white;
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+	box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+	transform: translateY(-2px);
+}
+
+.btn-warning {
+	background: linear-gradient(135deg, #f59e0b, #eab308);
+	color: #1f2937;
+	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:hover {
+	box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+	transform: translateY(-2px);
+}
+
+.btn:active {
+	transform: translateY(0) scale(0.98);
+}
+
+.btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* Stats - More impactful */
 .stats-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-	gap: 15px;
-	margin-top: 15px;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 16px;
+	margin-top: 8px;
 }
+
 .stat-box {
 	text-align: center;
-	padding: 15px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
-	border-radius: 8px;
+	padding: 24px 16px;
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	color: #e0e7ff;
+	border-radius: 16px;
+	border: 1px solid rgba(99, 102, 241, 0.3);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	overflow: hidden;
 }
-.stat-value {
-	font-size: 2em;
-	font-weight: bold;
+
+.stat-box::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+	transform: scaleX(0);
+	transition: transform 0.3s ease;
 }
+
+.stat-box:hover {
+	transform: translateY(-6px) scale(1.05);
+	box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+	border-color: rgba(99, 102, 241, 0.5);
+}
+
+.stat-box:hover::before {
+	transform: scaleX(1);
+}
+
 .stat-label {
-	font-size: 0.9em;
-	opacity: 0.9;
-	margin-top: 5px;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: #c7d2fe;
+	margin-bottom: 12px;
+	font-weight: 600;
 }
-.mode-badge {
-	display: inline-block;
-	padding: 5px 15px;
-	border-radius: 20px;
-	font-weight: bold;
-	font-size: 0.9em;
+
+.stat-value {
+	font-size: 2.5rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	background: linear-gradient(135deg, #60a5fa, #a78bfa);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
 }
-.mode-efficient {
-	background: #d4edda;
-	color: #155724;
-	border: 1px solid #c3e6cb;
-}
-.mode-aggressive {
-	background: #f8d7da;
-	color: #721c24;
-	border: 1px solid #f5c6cb;
-}
+
+/* Log viewer - More terminal-like */
 .log-viewer {
-	background: #1e1e1e;
-	color: #d4d4d4;
-	padding: 15px;
-	border-radius: 4px;
-	font-family: 'Courier New', monospace;
-	font-size: 0.9em;
+	background: rgba(0, 0, 0, 0.9);
+	color: #d4d4d8;
+	padding: 16px;
+	border-radius: 12px;
+	font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+	font-size: 0.8rem;
 	max-height: 400px;
 	overflow-y: auto;
-	margin-top: 15px;
+	margin-top: 16px;
+	border: 1px solid rgba(148, 163, 253, 0.2);
+	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+	position: relative;
 }
+
+.log-viewer::before {
+	content: '$ AutoEdu Logs';
+	position: sticky;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 8px;
+	background: rgba(15, 23, 42, 0.9);
+	color: #60a5fa;
+	font-weight: 600;
+	font-size: 0.75rem;
+	border-bottom: 1px solid rgba(148, 163, 253, 0.2);
+	margin: -16px -16px 12px -16px;
+	z-index: 1;
+}
+
 .log-line {
-	margin: 2px 0;
-	line-height: 1.4;
+	margin: 4px 0;
+	line-height: 1.6;
+	padding: 4px 8px;
+	border-radius: 4px;
+	white-space: pre-wrap;
+	word-break: break-word;
+	transition: background 0.2s ease;
 }
-.log-info { color: #4fc3f7; }
-.log-success { color: #81c784; }
-.log-warn { color: #ffb74d; }
-.log-error { color: #e57373; }
+
+.log-line:hover {
+	background: rgba(59, 130, 246, 0.1);
+}
+
+.log-info {
+	color: #60a5fa;
+	border-left: 3px solid #3b82f6;
+	padding-left: 12px;
+}
+
+.log-success {
+	color: #4ade80;
+	border-left: 3px solid #22c55e;
+	padding-left: 12px;
+}
+
+.log-warn {
+	color: #fbbf24;
+	border-left: 3px solid #f59e0b;
+	padding-left: 12px;
+}
+
+.log-error {
+	color: #f87171;
+	border-left: 3px solid #ef4444;
+	padding-left: 12px;
+	font-weight: 600;
+}
+
 .loading {
 	text-align: center;
-	padding: 20px;
-	color: #666;
+	padding: 32px;
+	color: #94a3b8;
+	font-style: italic;
+	font-size: 0.875rem;
+}
+
+.loading::before {
+	content: '⚡';
+	display: block;
+	font-size: 2rem;
+	margin-bottom: 12px;
+	animation: loadingSpin 1s linear infinite;
+}
+
+@keyframes loadingSpin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+/* Scrollbar - Custom styling */
+.log-viewer::-webkit-scrollbar {
+	width: 8px;
+}
+
+.log-viewer::-webkit-scrollbar-track {
+	background: rgba(15, 23, 42, 0.5);
+	border-radius: 4px;
+}
+
+.log-viewer::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, #3b82f6, #6366f1);
+	border-radius: 4px;
+	transition: background 0.3s ease;
+}
+
+.log-viewer::-webkit-scrollbar-thumb:hover {
+	background: linear-gradient(180deg, #60a5fa, #818cf8);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.autoedu-dashboard {
+		margin: 12px 8px;
+		padding: 0 8px;
+	}
+
+	.autoedu-dashboard h2 {
+		font-size: 2rem;
+	}
+
+	.status-info {
+		grid-template-columns: 1fr;
+	}
+
+	.stats-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.btn-group {
+		flex-direction: column;
+	}
+
+	.btn {
+		width: 100%;
+	}
+
+	.status-card {
+		padding: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	.autoedu-dashboard h2 {
+		font-size: 1.75rem;
+	}
+
+	.autoedu-badges {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.autoedu-pill {
+		justify-content: center;
+	}
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+	0% { background-position: -1000px 0; }
+	100% { background-position: 1000px 0; }
+}
+
+.skeleton {
+	background: linear-gradient(90deg, rgba(148, 163, 253, 0.1) 25%, rgba(148, 163, 253, 0.2) 50%, rgba(148, 163, 253, 0.1) 75%);
+	background-size: 1000px 100%;
+	animation: shimmer 2s infinite;
 }
 </style>
 
 <div class="autoedu-dashboard">
-	<h2>🤖 Auto-Edu Dashboard</h2>
+	<div class="dashboard-header">
+		<h2>🤖 AutoEdu Control Center</h2>
+		<p class="autoedu-subtitle">
+			Monitor & kontrol AutoEdu service dengan real-time dashboard
+		</p>
+		<div class="autoedu-badges">
+			<div class="autoedu-pill">⚡ Auto refresh 30s</div>
+			<div class="autoedu-pill">🧠 Smart monitoring</div>
+			<div class="autoedu-pill">🔐 Secure connection</div>
+		</div>
+	</div>
 	
 	<!-- Service Status Card -->
 	<div class="status-card">
-		<h3>Service Status</h3>
-		<div id="service-status" class="loading">Loading...</div>
+		<h3>🎯 Service Status</h3>
+		<div id="service-status" class="loading">Memuat status service...</div>
 		
 		<div class="btn-group" id="action-buttons" style="display:none;">
 			<button class="btn btn-success" onclick="performAction('start')" id="btn-start">
@@ -155,62 +719,58 @@ Licensed under the Apache License, Version 2.0
 				⏸ Stop Service
 			</button>
 			<button class="btn btn-warning" onclick="performAction('restart')">
-				🔄 Restart Service
+				🔄 Restart
 			</button>
 			<button class="btn btn-primary" onclick="performAction('run_now')">
-				▶️ Run Now
+				⚡ Run Now
 			</button>
 		</div>
 	</div>
 	
 	<!-- Current Configuration Card -->
 	<div class="status-card">
-		<h3>Current Configuration</h3>
-		<div id="config-info" class="loading">Loading...</div>
+		<h3>⚙️ Konfigurasi</h3>
+		<div id="config-info" class="loading">Memuat konfigurasi...</div>
 	</div>
 	
 	<!-- Statistics Card -->
 	<div class="status-card">
-		<h3>Statistics (Last 24h)</h3>
-		<div id="statistics" class="loading">Loading...</div>
+		<h3>📊 Statistik (24 Jam Terakhir)</h3>
+		<div id="statistics" class="loading">Memuat statistik...</div>
 	</div>
 	
 	<!-- Recent Logs Card -->
 	<div class="status-card">
-		<h3>Recent Activity</h3>
+		<h3>📝 Activity Log</h3>
 		<div class="btn-group">
 			<button class="btn btn-primary" onclick="refreshLogs()">🔄 Refresh</button>
-			<button class="btn btn-danger" onclick="clearLogs()">🗑 Clear Logs</button>
-			<a href="<%=url("admin/services/autoedu/logs")%>" class="btn btn-primary">📜 View Full Logs</a>
+			<button class="btn btn-danger" onclick="clearLogs()">🗑 Clear</button>
+			<a href="<%=url("admin/services/autoedu/logs")%>" class="btn btn-primary">📜 Full Logs</a>
 		</div>
 		<div class="log-viewer" id="log-viewer">
-			<div class="loading">Loading logs...</div>
+			<div class="loading">Memuat log aktivitas...</div>
 		</div>
 	</div>
 </div>
 
 <script>
-// API base URL
 const API_BASE = '<%=url("admin/services/autoedu/api")%>';
 
-// Load dashboard data
+// Load dashboard data with error handling
 async function loadDashboard() {
 	try {
-		// Load service status
 		const statusResp = await fetch(API_BASE + '/status');
 		const status = await statusResp.json();
 		renderStatus(status);
-		
-		// Load statistics
+
 		const statsResp = await fetch(API_BASE + '/stats');
 		const stats = await statsResp.json();
 		renderStats(stats);
-		
-		// Load recent logs
+
 		await refreshLogs();
-		
 	} catch (error) {
 		console.error('Error loading dashboard:', error);
+		showError('Gagal memuat dashboard. Silakan refresh halaman.');
 	}
 }
 
@@ -218,74 +778,107 @@ async function loadDashboard() {
 function renderStatus(status) {
 	const statusDiv = document.getElementById('service-status');
 	const actionButtons = document.getElementById('action-buttons');
-	
+
 	const modeClass = status.mode === 'AGGRESSIVE' ? 'mode-aggressive' : 'mode-efficient';
 	const modeIcon = status.mode === 'AGGRESSIVE' ? '🔴' : '🟢';
 	const modeText = status.mode === 'AGGRESSIVE' ? 'AGGRESSIVE' : 'EFFICIENT';
-	
-	const statusIcon = status.running ? 
-		'<span class="status-indicator status-running"></span>Running' :
-		'<span class="status-indicator status-stopped"></span>Stopped';
-	
+
+	const isRunning = status.enabled && status.cron_active;
+	const statusIcon = isRunning
+		? '<span class="status-indicator status-running"></span>Running'
+		: '<span class="status-indicator status-stopped"></span>Stopped';
+
+	const statusColor = isRunning ? '#22c55e' : '#f97316';
+
 	statusDiv.innerHTML = `
 		<div class="status-info">
 			<div class="info-item">
-				<div class="info-label">Status</div>
-				<div class="info-value">${statusIcon}</div>
-			</div>
-			<div class="info-item">
-				<div class="info-label">Mode</div>
-				<div class="info-value">
-					<span class="mode-badge ${modeClass}">${modeIcon} ${modeText}</span>
+				<div class="info-label">🎯 Status Service</div>
+				<div class="info-value" style="color:${statusColor}; font-weight:700;">${statusIcon}</div>
+				<div class="info-note">
+					${status.enabled ? '✅ Enabled' : '❌ Disabled'} •
+					${status.cron_active ? '✅ Cron Active' : '❌ No Cron'}
 				</div>
 			</div>
 			<div class="info-item">
-				<div class="info-label">Last Check</div>
-				<div class="info-value">${status.last_check || 'N/A'}</div>
+				<div class="info-label">⚡ Mode Operasi</div>
+				<div class="info-value">
+					<span class="mode-badge ${modeClass}">${modeIcon} ${modeText}</span>
+				</div>
+				<div class="info-note">
+					${status.mode === 'AGGRESSIVE' 
+						? 'Fokus perpanjang secepat mungkin' 
+						: 'Mode aman & stabil'}
+				</div>
 			</div>
 			<div class="info-item">
-				<div class="info-label">Last Renewal</div>
+				<div class="info-label">🕐 Last Check</div>
+				<div class="info-value">${status.last_check || 'Never'}</div>
+				${status.last_check_ago ? `<div class="info-note">${status.last_check_ago}</div>` : ''}
+			</div>
+			<div class="info-item">
+				<div class="info-label">🔄 Last Renewal</div>
 				<div class="info-value">${status.last_renewal || 'Never'}</div>
+				${status.last_renewal_ago ? `<div class="info-note">${status.last_renewal_ago}</div>` : ''}
 			</div>
 			<div class="info-item">
-				<div class="info-label">Cron Schedule</div>
-				<div class="info-value">${status.cron_active ? status.cron_schedule || 'Active' : 'Inactive'}</div>
+				<div class="info-label">⏰ Cron Schedule</div>
+				<div class="info-value">${status.cron_readable || 'Not configured'}</div>
+				${status.next_check ? `<div class="info-note">Next: ${status.next_check}</div>` : ''}
 			</div>
 			<div class="info-item">
-				<div class="info-label">ADB Device</div>
-				<div class="info-value">${status.adb_connected ? '✅ Connected' : '❌ Disconnected'}</div>
+				<div class="info-label">📱 ADB Device</div>
+				<div class="info-value">
+					${status.adb_connected
+						? '✅ ' + (status.adb_device || 'Connected')
+						: '❌ Disconnected'}
+				</div>
+				<div class="info-note">
+					${status.adb_connected 
+						? 'Device ready for automation' 
+						: 'Pastikan ADB aktif & device connected'}
+				</div>
 			</div>
 		</div>
 	`;
-	
-	// Show/hide buttons based on status
+
 	actionButtons.style.display = 'flex';
-	document.getElementById('btn-start').disabled = status.running;
-	document.getElementById('btn-stop').disabled = !status.running;
-	
-	// Render config info
+	document.getElementById('btn-start').disabled = isRunning;
+	document.getElementById('btn-stop').disabled = !isRunning;
+
+	// Config info
 	const configDiv = document.getElementById('config-info');
-	const hasToken = status.bot_token !== '';
-	const hasChat = status.chat_id !== '';
-	
 	configDiv.innerHTML = `
 		<div class="status-info">
 			<div class="info-item">
-				<div class="info-label">Telegram Bot</div>
-				<div class="info-value">${hasToken ? '✅ Configured' : '❌ Not configured'}</div>
+				<div class="info-label">💬 Telegram Bot</div>
+				<div class="info-value">
+					${status.telegram_configured ? '✅ Configured' : '❌ Not configured'}
+				</div>
+				<div class="info-note">
+					${status.telegram_configured
+						? 'Bot notifications enabled'
+						: 'Set token & chat ID di Config'}
+				</div>
 			</div>
 			<div class="info-item">
-				<div class="info-label">Chat ID</div>
-				<div class="info-value">${hasChat ? '✅ Configured' : '❌ Not configured'}</div>
-			</div>
-			<div class="info-item">
-				<div class="info-label">Service</div>
+				<div class="info-label">🔧 Service</div>
 				<div class="info-value">${status.enabled ? '✅ Enabled' : '❌ Disabled'}</div>
+				<div class="info-note">Kontrol utama AutoEdu service</div>
+			</div>
+			<div class="info-item">
+				<div class="info-label">🤖 Auto Start</div>
+				<div class="info-value">${status.cron_active ? '✅ Active' : '❌ Inactive'}</div>
+				<div class="info-note">Cron job untuk auto-start</div>
 			</div>
 		</div>
 		<div class="btn-group">
-			<a href="<%=url("admin/services/autoedu/config")%>" class="btn btn-primary">✏️ Edit Configuration</a>
-			<a href="<%=url("admin/services/autoedu/mode")%>" class="btn btn-warning">🎚️ Change Mode</a>
+			<a href="<%=url("admin/services/autoedu/config")%>" class="btn btn-primary">
+				✏️ Edit Configuration
+			</a>
+			<a href="<%=url("admin/services/autoedu/mode")%>" class="btn btn-warning">
+				🎚️ Change Mode
+			</a>
 		</div>
 	`;
 }
@@ -293,33 +886,31 @@ function renderStatus(status) {
 // Render statistics
 function renderStats(stats) {
 	const statsDiv = document.getElementById('statistics');
-	
 	statsDiv.innerHTML = `
 		<div class="stats-grid">
 			<div class="stat-box">
-				<div class="stat-value">${stats.checks_24h || 0}</div>
 				<div class="stat-label">Total Checks</div>
+				<div class="stat-value">${stats.checks_24h || 0}</div>
 			</div>
-			<div class="stat-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-				<div class="stat-value">${stats.renewals_24h || 0}</div>
+			<div class="stat-box">
 				<div class="stat-label">Renewals</div>
+				<div class="stat-value">${stats.renewals_24h || 0}</div>
 			</div>
-			<div class="stat-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-				<div class="stat-value">${stats.success_rate || 100}%</div>
+			<div class="stat-box">
 				<div class="stat-label">Success Rate</div>
+				<div class="stat-value">${stats.success_rate != null ? stats.success_rate : 100}%</div>
 			</div>
 		</div>
 	`;
 }
 
-// Refresh logs
+// Refresh logs with smooth animation
 async function refreshLogs() {
 	try {
 		const resp = await fetch(API_BASE + '/logs?lines=50');
 		const data = await resp.json();
-		
 		const logViewer = document.getElementById('log-viewer');
-		
+
 		if (data.success && data.logs.length > 0) {
 			logViewer.innerHTML = data.logs.map(line => {
 				let className = 'log-line';
@@ -327,70 +918,73 @@ async function refreshLogs() {
 				else if (line.includes('[WARN]')) className += ' log-warn';
 				else if (line.includes('[SUCCESS]')) className += ' log-success';
 				else if (line.includes('[INFO]')) className += ' log-info';
-				
 				return `<div class="${className}">${escapeHtml(line)}</div>`;
 			}).join('');
-			
-			// Auto-scroll to bottom
 			logViewer.scrollTop = logViewer.scrollHeight;
 		} else {
 			logViewer.innerHTML = '<div class="loading">No logs available</div>';
 		}
 	} catch (error) {
 		console.error('Error loading logs:', error);
-		document.getElementById('log-viewer').innerHTML = 
-			'<div class="log-error">Error loading logs</div>';
+		document.getElementById('log-viewer').innerHTML =
+			'<div class="log-error">❌ Error loading logs</div>';
 	}
 }
 
-// Perform action
+// Perform action with feedback
 async function performAction(action) {
-	if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) {
-		return;
-	}
-	
+	const actionText = action.replace('_', ' ').toUpperCase();
+	if (!confirm(`Yakin mau ${actionText}?`)) return;
+
 	try {
 		const formData = new FormData();
 		formData.append('action', action);
-		
+
 		const resp = await fetch(API_BASE + '/action', {
 			method: 'POST',
 			body: formData
 		});
-		
 		const result = await resp.json();
-		
+
 		if (result.success) {
-			alert('Success: ' + result.message);
-			// Reload dashboard after action
-			setTimeout(loadDashboard, 1000);
+			showSuccess(result.message);
+			setTimeout(loadDashboard, 900);
 		} else {
-			alert('Error: ' + result.message);
+			showError(result.message);
 		}
 	} catch (error) {
-		alert('Error: ' + error.message);
+		showError('Error: ' + error.message);
 	}
 }
 
 // Clear logs
 async function clearLogs() {
-	if (!confirm('Are you sure you want to clear all logs?')) {
-		return;
-	}
-	
+	if (!confirm('Yakin mau clear semua logs?')) return;
 	await performAction('clear_logs');
 	await refreshLogs();
 }
 
-// Utility: Escape HTML
+// Utility functions
 function escapeHtml(text) {
 	const div = document.createElement('div');
 	div.textContent = text;
 	return div.innerHTML;
 }
 
-// Auto-refresh every 30 seconds
-setInterval(loadDashboard, 30000);
+function showSuccess(message) {
+	alert('✅ Success: ' + message);
+}
+
+function showError(message) {
+	alert('❌ Error: ' + message);
+}
+
+// Auto-refresh with visual indicator
+let refreshCounter = 0;
+setInterval(() => {
+	refreshCounter++;
+	loadDashboard();
+}, 30000);
 
 // Initial load
 loadDashboard();

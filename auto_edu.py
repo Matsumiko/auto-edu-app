@@ -672,13 +672,17 @@ def validasi_konfigurasi(logger):
 
 def main():
     """Fungsi utama"""
-    # Prevent double execution
+    
+    # Prevent double execution with file lock
     import fcntl
+    lock_file_path = '/tmp/auto_edu_python.lock'
+    lock_file = None
+    
     try:
-        lock_file = open('/tmp/auto_edu_python.lock', 'w')
+        lock_file = open(lock_file_path, 'w')
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except (IOError, OSError):
-        # Another instance running, exit silently
+        # Another instance is running, exit silently
         return 0
     
     logger = Logger(LOG_FILE)
@@ -744,6 +748,15 @@ def main():
             f"Periksa log untuk detail lebih lanjut."
         )
         return 1
+    
+    finally:
+        # Release lock
+        if lock_file:
+            try:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+                lock_file.close()
+            except:
+                pass
 
 
 if __name__ == '__main__':
